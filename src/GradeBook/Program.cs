@@ -8,7 +8,7 @@ namespace GradeBook
         static void Main(string[] args)
         {
             var book1 = new Book("My Grade Book");
-
+            book1.GradeAdded += OnGradeAdded;
             while (true)
             {
                 Console.WriteLine("Enter grade or 'q' to quite: ");
@@ -30,7 +30,7 @@ namespace GradeBook
                     throw;
                 }
                 finally{
-                    Console.WriteLine("input taken\n");
+                    // Console.WriteLine("input taken\n");
                 }
 
 
@@ -43,6 +43,11 @@ namespace GradeBook
             System.Console.WriteLine(stats.High);
             System.Console.WriteLine(stats.Low);
             System.Console.WriteLine(stats.Letter);
+        }
+
+        static void OnGradeAdded(object sender, EventArgs e)
+        {
+            Console.WriteLine("A Greade was added");
         }
     }
 }
