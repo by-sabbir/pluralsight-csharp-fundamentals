@@ -54,23 +54,26 @@ namespace GradeBook
             return result;
         }
         private List<double> grades;
-        private string name;
+        // private string name;
+        // public string Name
+        // {
+        //     get
+        //     {
+        //         return name;
+        //     }
+        //     set
+        //     {
+        //         if (!string.IsNullOrEmpty(value))
+        //             name = value;
+        //         else
+        //         {
+        //             throw new FormatException($"Invalid {nameof(value)}");
+        //         }
+        //     }
+        // }
         public string Name
         {
-            get
-            {
-                return name;
-            }
-            set
-            {
-                if (!string.IsNullOrEmpty(value))
-                    name = value;
-                else
-                {
-                    throw new FormatException($"Invalid {nameof(value)}");
-                }
-            }
+            get; set;
         }
-
     }
 }
