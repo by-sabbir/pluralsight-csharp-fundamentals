@@ -4,14 +4,24 @@ using System.Collections.Generic;
 namespace GradeBook
 {
     public delegate void GradeBookDelegate(object sender, EventArgs args);
-    public class Book
+
+    public abstract class Book : NamedObject
     {
-        public Book(string name)
+        public Book(string name) : base(name)
+        {
+        }
+
+        public abstract void AddGrade(double grade);
+    }
+    public class InMemory : Book
+    {
+        public InMemory(string name) : base(name)
         {
             Name = name;
             grades = new List<double>();
         }
-        public void AddGrade(double grade)
+        public event GradeBookDelegate GradeAdded;
+        public override void AddGrade(double grade)
         {
             if (grade <= 100 && grade >= 0)
             {
@@ -23,7 +33,7 @@ namespace GradeBook
                 throw new ArgumentException($"Invalid {nameof(grade)} {grade}");
             }
         }
-        public event GradeBookDelegate GradeAdded;
+        
         public Statistics GetStats()
         {
             var result = new Statistics();
