@@ -7,20 +7,23 @@ namespace GradeBook
     {
         static void Main(string[] args)
         {
-            var book1 = new InMemory("My Grade Book");
+            IBook book1 = new InMemory("My Grade Book");
             book1.GradeAdded += OnGradeAdded;
             EnterGrades(book1);
-            System.Console.WriteLine("Printing Stats: \n");
 
+            // DiskBook
+            Console.WriteLine("Disk memory: \n");
+            IBook book2 = new DiskBook("First Disk Book");
+            EnterGrades(book2);
 
-            var stats = book1.GetStats();
+            var stats = book2.GetStats();
             System.Console.WriteLine(stats.Average);
             System.Console.WriteLine(stats.High);
             System.Console.WriteLine(stats.Low);
             System.Console.WriteLine(stats.Letter);
         }
 
-        private static void EnterGrades(Book book1)
+        private static void EnterGrades(IBook book1)
         {
             while (true)
             {

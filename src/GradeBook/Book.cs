@@ -1,26 +1,71 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace GradeBook
 {
     public delegate void GradeBookDelegate(object sender, EventArgs args);
 
-    public abstract class Book : NamedObject
+    public interface IBook
+    {
+        void AddGrade(double grade);
+        Statistics GetStats();
+        string Name { get; }
+        event GradeBookDelegate GradeAdded;
+    }
+    public abstract class Book : NamedObject, IBook
     {
         public Book(string name) : base(name)
         {
         }
-
+        public abstract event GradeBookDelegate GradeAdded;
         public abstract void AddGrade(double grade);
+        public abstract Statistics GetStats();
     }
-    public class InMemory : Book
+    public class DiskBook : Book
+    {
+        public DiskBook(string name) : base(name)
+        {
+        }
+
+        public override event GradeBookDelegate GradeAdded;
+
+        public override void AddGrade(double grade)
+        {
+            using(var writer = File.AppendText($"{Name}.txt"))
+            {
+                writer.WriteLine(grade);
+                if (GradeAdded != null)
+                {
+                    GradeAdded(this, new EventArgs());
+                }
+            }
+            
+        }
+
+        public override Statistics GetStats()
+        {
+            var result = new Statistics();
+            using(var reader = File.OpenText($"{this}.txt"))
+            {
+                var line = reader.ReadLine();
+                while (line != null){
+                    var number = double.Parse(line);
+                    result.Add(number);
+                    line = reader.ReadLine();
+                }
+            }
+            return result;
+        }
+    }
+    public class InMemory : Book, IBook
     {
         public InMemory(string name) : base(name)
         {
             Name = name;
             grades = new List<double>();
         }
-        public event GradeBookDelegate GradeAdded;
+        public override event GradeBookDelegate GradeAdded;
         public override void AddGrade(double grade)
         {
             if (grade <= 100 && grade >= 0)
@@ -34,38 +79,16 @@ namespace GradeBook
             }
         }
         
-        public Statistics GetStats()
+        public override Statistics GetStats()
         {
             var result = new Statistics();
-            result.Average = 0.0;
-            result.High = double.MinValue;
-            result.Low = double.MaxValue;
+            
             foreach (var grade in grades)
             {
-                result.High = Math.Max(result.High, grade);
-                result.Low = Math.Min(result.Low, grade);
-                result.Average += grade;
+                result.Add(grade);
             }
-            result.Average /= grades.Count;
             
-            switch (result.Average)
-            {
-                case var d when d >= 90.0:
-                    result.Letter = 'A';
-                    break;
-                case var d when d >= 80.0:
-                    result.Letter =  'B';
-                    break;
-                case var d when d >= 70.0:
-                    result.Letter =  'C';
-                    break;
-                case var d when d >= 60.0:
-                    result.Letter =  'D';
-                    break;
-                default:
-                    result.Letter = 'F';
-                    break;
-            }
+            
             return result;
         }
         private List<double> grades;
